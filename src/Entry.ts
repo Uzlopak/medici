@@ -136,7 +136,6 @@ export class Entry<U extends ITransaction = ITransaction, J extends IJournal = I
         const err = txModel.validateSync();
         if (err) throw err;
       }
-It ll
 
       const result = await transactionModel.collection.bulkWrite(this.transactions.map(tx => ({insertOne: tx}), {
         ordered: true, // Ensure items are inserted in the order provided.
