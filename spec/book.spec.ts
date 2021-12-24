@@ -179,36 +179,6 @@ describe("book", function () {
       }
     });
 
-    it("should save all transactions in bulk and mitigate mongodb 'insertedIds' bug", async () => {
-      const book = new Book("MyBook-Entry-Test-bulk-saving");
-
-      const saveSpy = spy(transactionModel.collection, "insertMany");
-      const findSpy = spy(transactionModel.collection, "find");
-
-      try {
-        await book
-          .entry("extra")
-          .debit("A:B", 1, { debit: 2, clientId: "Mr. B" })
-          .credit("A:B", 1, { credit: 2 })
-          .commit();
-      } finally {
-        saveSpy.restore();
-        findSpy.restore();
-      }
-
-      expect(saveSpy.callCount).equal(1); // should attempts saving both transactions in parallel
-      expect(saveSpy.firstCall.args[1]).include({
-        forceServerObjectId: true,
-        ordered: true,
-      });
-
-      expect(findSpy.firstCall.args[0]).have.property("_journal");
-      expect(findSpy.firstCall.args[1]!.projection).have.property("_id", 1);
-
-      const { balance } = await book.balance({ account: "A:B" });
-      expect(balance).to.be.equal(0);
-    });
-
     describe("approved/pending transactions", function () {
       let pendingJournal:
         | (Document &
