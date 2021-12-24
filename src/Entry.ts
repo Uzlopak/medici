@@ -137,7 +137,7 @@ export class Entry<U extends ITransaction = ITransaction, J extends IJournal = I
         if (err) throw err;
       }
 
-      const result = await transactionModel.collection.bulkWrite(this.transactions.map(tx => ({insertOne: tx}), {
+      const result = await transactionModel.collection.bulkWrite(this.transactions.map(tx => ({insertOne: tx})), {
         ordered: true, // Ensure items are inserted in the order provided.
         session: options.session, // We must provide either session or writeConcern, but not both.
         writeConcern: options.session ? undefined : { w: 1, j: true }, // Ensure at least ONE node wrote to JOURNAL (disk)
