@@ -143,7 +143,7 @@ export class Entry<U extends ITransaction = ITransaction, J extends IJournal = I
         writeConcern: options.session ? undefined : { w: 1, j: true }, // Ensure at least ONE node wrote to JOURNAL (disk)
       });
 
-      const insertedIds = result.insertedIds.map(doc => new Types.ObjectId(doc._id));
+      const insertedIds = Object.values(result.insertedIds).map(doc => new Types.ObjectId(doc._id));
 
       this.journal._transactions = insertedIds as Types.ObjectId[];
       await this.journal.save(options);
