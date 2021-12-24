@@ -137,16 +137,16 @@ export class Entry<U extends ITransaction = ITransaction, J extends IJournal = I
         if (err) throw err;
       }
 
-      const { insertedIds } = await transactionModel.collection.insertMany(this.transactions, {
+      const result = await transactionModel.collection.insertMany(this.transactions, {
         forceServerObjectId: true, // This improves ordering of the entries on high load.
         ordered: true, // Ensure items are inserted in the order provided.
         session: options.session, // We must provide either session or writeConcern, but not both.
         writeConcern: options.session ? undefined : { w: 1, j: true }, // Ensure at least ONE node wrote to JOURNAL (disk)
       });
 
-console.log(insertedIds);
+console.log(JSON.stringify(result, null, 2));
 
-      this.journal._transactions = insertedIds as Types.ObjectId[];
+      this.journal._transactions = result.insertedIds as Types.ObjectId[];
       await this.journal.save(options);
 
       if (options.writelockAccounts && options.session) {
