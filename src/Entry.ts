@@ -141,6 +141,7 @@ export class Entry<U extends ITransaction = ITransaction, J extends IJournal = I
         forceServerObjectId: true, // This improves ordering of the entries on high load.
         ordered: true, // Ensure items are inserted in the order provided.
         session: options.session, // We must provide either session or writeConcern, but not both.
+        rawResult: true,
         writeConcern: options.session ? undefined : { w: 1, j: true }, // Ensure at least ONE node wrote to JOURNAL (disk)
       });
 
