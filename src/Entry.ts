@@ -137,13 +137,14 @@ export class Entry<U extends ITransaction = ITransaction, J extends IJournal = I
         if (err) throw err;
       }
 
-      const result = await transactionModel.collection.insertMany(this.transactions, {
+      const { insertedIds } = await transactionModel.collection.insertMany(this.transactions, {
         forceServerObjectId: true, // This improves ordering of the entries on high load.
         ordered: true, // Ensure items are inserted in the order provided.
         session: options.session, // We must provide either session or writeConcern, but not both.
         writeConcern: options.session ? undefined : { w: 1, j: true }, // Ensure at least ONE node wrote to JOURNAL (disk)
       });
-      let insertedIds = Object.values(result.insertedIds) as Types.ObjectId[];
+
+console.log(insertedIds);
 
       if (insertedIds.length === this.transactions.length && !insertedIds[0]) {
         // Mongo returns `undefined` as the insertedIds when forceServerObjectId=true. Let's re-read it.
