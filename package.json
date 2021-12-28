@@ -57,6 +57,7 @@
     "@types/sinon": "^10.0.6",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
+    "benchmark": "^2.1.4",
     "chai": "^4.3.4",
     "dts-bundle-generator": "^6.2.0",
     "eslint": "^8.4.1",
