@@ -1,8 +1,21 @@
 import * as mongoose from "mongoose";
 import { MongoMemoryReplSet } from "mongodb-memory-server";
 import { Book, initModels } from "../src";
+import * as Benchmark from "benchmark";
 
+// @ts-ignore
+const suite = new Benchmark.Suite();
 let replSet: MongoMemoryReplSet;
+
+function p(fn) {
+  return {
+    defer: true,
+    async fn(deferred) {
+      await fn();
+      deferred.resolve();
+    }
+  }
+}
 
 (async () => {
   replSet = new MongoMemoryReplSet({
@@ -31,25 +44,23 @@ let replSet: MongoMemoryReplSet;
   const book = new Book("MyBook");
 
   for (let i = 0; i < 5000; i++) {
-    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     await book
-      .entry(`Test Entry ${i}`, threeDaysAgo)
+      .entry(`Test Entry ${i}`)
       .debit("Assets:Receivable", 700)
       .credit("Income:Rent", 700)
       .commit();
-
-    i % 100 === 0 && console.log(i);
   }
+  
 
-  console.log("start benchmark");
-  const start = Date.now();
-  for (let i = 0; i < 1000; i++) {
-    await book.balance({
-      account: "Income:Rent",
-    });
-    i % 100 === 0 && console.log(i);
-  }
-
-  console.log((Date.now() - start) / 1000);
+  suite
+    .add('balance', p(async () => {
+      await book.balance({
+        account: "Income:Rent",
+      });
+    }))
+    .on('cycle', (event) => {
+        console.log(String(event.target));
+    })
+    .run();
   process.exit(0);
 })();
